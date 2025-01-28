@@ -164,7 +164,9 @@ const eventListeners = () => {
   document.querySelector('#filterContainer').addEventListener('click', (e) => {
     console.log("You clicked a filter button", e.target.id);
     // filter on category (either use .filter or a loop)
+    const newArray = data.filter((datum) => datum.category == e.target.id)
     // rerender DOM with new array (use the cardsOnDom function)
+    cardsOnDom(newArray)
   });
 
   // BUTTONS ON CARDS
@@ -172,6 +174,7 @@ const eventListeners = () => {
     // check to make sure e.target.id is not empty
     if (e.target.id) {
       // get the video ID off the button ID
+      const selectedVideoID = e.target.id.split('--')[1]
       // find the index of the object in the array
 
       // only listen for events with "watch" or "delete" included in the string
@@ -179,7 +182,7 @@ const eventListeners = () => {
       // if watch: grab the ID and rerender the videoPlayer with that ID as an argument
       if (e.target.id.includes('watch')) {
         console.log("Pressed Watch Button")        
-        
+        videoPlayer(selectedVideoID)
         
         // scroll to top of page
         document.location = '#';
@@ -189,7 +192,14 @@ const eventListeners = () => {
       // NOTE: if 2 videos have the same videoId, this will delete the first one in the array
       if (e.target.id.includes('delete')) {
         console.log("Delete Button Pressed")
+        for (let datum in data) {
+          if (data[datum]["videoId"] == selectedVideoID) {
+            data.splice(datum, 1)
+            break
+          }
+        }
         // rerender DOM with updated data array (use the cardsOnDom function)
+        cardsOnDom(data)
       }
     }
   });
@@ -199,9 +209,16 @@ const eventListeners = () => {
   form.addEventListener('submit', (e) => {
     e.preventDefault(); // this goes in EVERY form submit to prevent page reload
     // grab the values from the form inputs and create an object
-    // push that object to the data array    
+    const newDatum = {
+      videoId: form.elements['videoId'].value,
+      title: form.elements['title'].value,
+      category: form.elements['category'].value,
+      favorite: form.elements['favorite'].checked,
+    }
+    // push that object to the data array
+    data.push(newDatum)    
     // rerender cards using the cardsOnDom function and pass it the updated data array
-    
+    cardsOnDom(data)
     
     // Close modal and reset form
     formModal.hide()
@@ -212,10 +229,10 @@ const eventListeners = () => {
 // *********  FUNCTION TO START APPLICATION  *********  //
 const startApp = () => {
   videoBtnModal();
-  videoPlayer();
+  videoPlayer('cNjIUSDnb9k');
   filterButtons();
   cardsOnDom(data);
-  // eventListeners(); // always last
+  eventListeners(); // always last
 };
 
 startApp();
